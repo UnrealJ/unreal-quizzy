@@ -43,11 +43,11 @@ const Quiz = () => {
       const currentCard = cards[currentIndex];
       const wrongChoices = cards
         .filter((c) => c.id !== currentCard.id)
-        .map((c) => c.definition)
+        .map((c) => c.term)
         .sort(() => Math.random() - 0.5)
         .slice(0, 3);
       
-      const allChoices = [currentCard.definition, ...wrongChoices].sort(
+      const allChoices = [currentCard.term, ...wrongChoices].sort(
         () => Math.random() - 0.5
       );
       setChoices(allChoices);
@@ -66,9 +66,9 @@ const Quiz = () => {
     let correct = false;
 
     if (quizMode === "type-in") {
-      correct = userAnswer.toLowerCase().trim() === currentCard.definition.toLowerCase().trim();
+      correct = userAnswer.toLowerCase().trim() === currentCard.term.toLowerCase().trim();
     } else if (quizMode === "multiple-choice") {
-      correct = selectedChoice?.toLowerCase().trim() === currentCard.definition.toLowerCase().trim();
+      correct = selectedChoice?.toLowerCase().trim() === currentCard.term.toLowerCase().trim();
     }
     
     if (correct) {
@@ -146,7 +146,7 @@ const Quiz = () => {
                 <div className="text-4xl">✍️</div>
                 <div className="text-xl font-semibold">Type In</div>
                 <p className="text-sm text-muted-foreground">
-                  Type the correct definition
+                  Type the correct term
                 </p>
               </Button>
               <Button
@@ -245,8 +245,8 @@ const Quiz = () => {
       <div className="max-w-4xl mx-auto px-4 mt-12">
         <Card className="p-8">
           <div className="mb-8 text-center">
-            <h2 className="text-4xl font-bold mb-4">{currentCard.term}</h2>
-            <p className="text-muted-foreground">What is the definition?</p>
+            <h2 className="text-4xl font-bold mb-4">{currentCard.definition}</h2>
+            <p className="text-muted-foreground">What is the term?</p>
           </div>
 
           {!showResult ? (
@@ -301,37 +301,37 @@ const Quiz = () => {
               <div
                 className={`p-4 rounded-lg ${
                   (quizMode === "type-in" 
-                    ? userAnswer.toLowerCase().trim() === currentCard.definition.toLowerCase().trim()
-                    : selectedChoice?.toLowerCase().trim() === currentCard.definition.toLowerCase().trim())
+                    ? userAnswer.toLowerCase().trim() === currentCard.term.toLowerCase().trim()
+                    : selectedChoice?.toLowerCase().trim() === currentCard.term.toLowerCase().trim())
                     ? "bg-green-50 border border-green-200 dark:bg-green-950 dark:border-green-800"
                     : "bg-red-50 border border-red-200 dark:bg-red-950 dark:border-red-800"
                 }`}
               >
                 <div className="flex items-center gap-2 mb-2">
                   {(quizMode === "type-in" 
-                    ? userAnswer.toLowerCase().trim() === currentCard.definition.toLowerCase().trim()
-                    : selectedChoice?.toLowerCase().trim() === currentCard.definition.toLowerCase().trim()) ? (
+                    ? userAnswer.toLowerCase().trim() === currentCard.term.toLowerCase().trim()
+                    : selectedChoice?.toLowerCase().trim() === currentCard.term.toLowerCase().trim()) ? (
                     <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
                   ) : (
                     <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
                   )}
                   <span className="font-semibold">
                     {(quizMode === "type-in" 
-                      ? userAnswer.toLowerCase().trim() === currentCard.definition.toLowerCase().trim()
-                      : selectedChoice?.toLowerCase().trim() === currentCard.definition.toLowerCase().trim())
+                      ? userAnswer.toLowerCase().trim() === currentCard.term.toLowerCase().trim()
+                      : selectedChoice?.toLowerCase().trim() === currentCard.term.toLowerCase().trim())
                       ? "Correct!"
                       : "Incorrect"}
                   </span>
                 </div>
                 <p className="text-sm">
-                  <strong>Correct answer:</strong> {currentCard.definition}
+                  <strong>Correct answer:</strong> {currentCard.term}
                 </p>
-                {quizMode === "type-in" && userAnswer.toLowerCase().trim() !== currentCard.definition.toLowerCase().trim() && (
+                {quizMode === "type-in" && userAnswer.toLowerCase().trim() !== currentCard.term.toLowerCase().trim() && (
                   <p className="text-sm mt-1">
                     <strong>Your answer:</strong> {userAnswer}
                   </p>
                 )}
-                {quizMode === "multiple-choice" && selectedChoice?.toLowerCase().trim() !== currentCard.definition.toLowerCase().trim() && (
+                {quizMode === "multiple-choice" && selectedChoice?.toLowerCase().trim() !== currentCard.term.toLowerCase().trim() && (
                   <p className="text-sm mt-1">
                     <strong>Your answer:</strong> {selectedChoice}
                   </p>
