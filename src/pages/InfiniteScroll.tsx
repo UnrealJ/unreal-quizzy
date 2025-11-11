@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getSets, saveCardForLater, unsaveCard, isCardSaved } from "@/lib/storage";
 import { Flashcard } from "@/types/flashcard";
@@ -16,6 +16,7 @@ const InfiniteScroll = () => {
   const [cards, setCards] = useState<CardWithSet[]>([]);
   const [flippedCards, setFlippedCards] = useState<Set<string>>(new Set());
   const [savedCards, setSavedCards] = useState<Set<string>>(new Set());
+  const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   useEffect(() => {
     const sets = getSets();
@@ -43,6 +44,39 @@ const InfiniteScroll = () => {
       }
     });
     setSavedCards(saved);
+  }, []);
+
+  // Auto-flip cards back when scrolled away
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const cardId = entry.target.getAttribute("data-card-id");
+          if (cardId && !entry.isIntersecting && flippedCards.has(cardId)) {
+            setFlippedCards((prev) => {
+              const next = new Set(prev);
+              next.delete(cardId);
+              return next;
+            });
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    cardRefs.current.forEach((element) => {
+      if (element) observer.observe(element);
+    });
+
+    return () => observer.disconnect();
+  }, [flippedCards]);
+
+  const setCardRef = useCallback((cardId: string, element: HTMLDivElement | null) => {
+    if (element) {
+      cardRefs.current.set(cardId, element);
+    } else {
+      cardRefs.current.delete(cardId);
+    }
   }, []);
 
   const handleFlip = (cardId: string) => {
@@ -107,6 +141,8 @@ const InfiniteScroll = () => {
           return (
             <div
               key={`${card.setId}-${card.id}`}
+              ref={(el) => setCardRef(card.id, el)}
+              data-card-id={card.id}
               className="h-screen snap-start snap-always flex items-center justify-center p-4 relative"
             >
               <div
