@@ -5,16 +5,29 @@ import { FlashcardSet } from "@/types/flashcard";
 import { SetCard } from "@/components/SetCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { Plus, Search, Infinity, Bookmark } from "lucide-react";
 
 const Sets = () => {
   const [sets, setSets] = useState<FlashcardSet[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [showContent, setShowContent] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     setSets(getSets());
   }, []);
+
+  const handleLoadComplete = () => {
+    setIsLoading(false);
+    setTimeout(() => setShowContent(true), 100);
+  };
+
+  if (isLoading) {
+    return <LoadingScreen onLoadComplete={handleLoadComplete} />;
+  }
 
   const filteredSets = sets.filter((set) =>
     set.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -64,7 +77,18 @@ const Sets = () => {
           </Button>
         </div>
 
-        {filteredSets.length === 0 ? (
+        {!showContent ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-card rounded-lg p-6 border">
+                <Skeleton className="h-6 w-3/4 mb-2" />
+                <Skeleton className="h-4 w-1/2 mb-4" />
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-5/6" />
+              </div>
+            ))}
+          </div>
+        ) : filteredSets.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground mb-4">
               {searchQuery ? "No sets found" : "No sets yet. Create your first set!"}

@@ -2,10 +2,24 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Quizzy - Your Flashcard Study Companion</title>
     <meta name="description" content="Study smarter with Quizzy - a modern flashcard app that makes learning feel like scrolling through reels. Create sets, swipe through cards, and quiz yourself anytime, anywhere." />
     <meta name="author" content="Quizzy" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#8b5cf6" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Quizzy" />
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icon-180.png" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.webmanifest" />
 
     <meta property="og:title" content="Quizzy - Your Flashcard Study Companion" />
     <meta property="og:description" content="Study smarter with Quizzy - a modern flashcard app that makes learning feel like scrolling through reels." />
@@ -15,6 +29,15 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@Lovable" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
   </head>
 
   <body>
