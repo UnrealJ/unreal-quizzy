@@ -1,7 +1,7 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { FlashcardSet } from "@/types/flashcard";
 import { Card } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
 
 interface SetCardProps {
   set: FlashcardSet;
