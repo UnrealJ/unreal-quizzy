@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getSets, getSavedCards } from "@/lib/storage";
 import { Flashcard } from "@/types/flashcard";
