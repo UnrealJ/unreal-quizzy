@@ -5,7 +5,7 @@ import { FlashcardSet } from "@/types/flashcard";
 import { SetCard } from "@/components/SetCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Infinity, Bookmark } from "lucide-react";
 
 const Sets = () => {
   const [sets, setSets] = useState<FlashcardSet[]>([]);
@@ -25,7 +25,23 @@ const Sets = () => {
       <div className="bg-gradient-brand text-primary-foreground p-6 pb-12">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-5xl font-bold mb-2">Quizzy</h1>
-          <p className="text-primary-foreground/80">Your flashcard study companion</p>
+          <p className="text-primary-foreground/80 mb-6">Your flashcard study companion</p>
+          <div className="flex flex-wrap gap-3">
+            <Button
+              onClick={() => navigate("/scroll")}
+              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+            >
+              <Infinity className="h-4 w-4 mr-2" />
+              Infinite Scroll
+            </Button>
+            <Button
+              onClick={() => navigate("/saved")}
+              variant="secondary"
+            >
+              <Bookmark className="h-4 w-4 mr-2" />
+              Saved Cards
+            </Button>
+          </div>
         </div>
       </div>
 
