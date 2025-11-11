@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getSets, saveCardForLater, unsaveCard, isCardSaved } from "@/lib/storage";
 import { Flashcard } from "@/types/flashcard";
