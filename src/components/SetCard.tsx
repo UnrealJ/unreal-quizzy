@@ -1,3 +1,4 @@
+import React from "react";
 import { FlashcardSet } from "@/types/flashcard";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
