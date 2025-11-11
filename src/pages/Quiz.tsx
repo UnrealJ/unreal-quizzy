@@ -56,7 +56,7 @@ const Quiz = () => {
 
   const handleModeSelect = (mode: QuizMode) => {
     setQuizMode(mode);
-    // Ensure cards are shuffled when starting
+    // Shuffle cards when quiz starts
     const shuffled = [...cards].sort(() => Math.random() - 0.5);
     setCards(shuffled);
   };

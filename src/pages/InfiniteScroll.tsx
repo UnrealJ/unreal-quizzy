@@ -46,7 +46,7 @@ const InfiniteScroll = () => {
     setSavedCards(saved);
   }, []);
 
-  // Auto-flip cards back when scrolled away
+  // Auto-flip cards back to term side when scrolled away
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
