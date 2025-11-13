@@ -2,6 +2,7 @@ import React from "react";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "next-themes";
 import Sets from "./pages/Sets";
 import SetView from "./pages/SetView";
 import CreateSet from "./pages/CreateSet";
@@ -15,20 +16,22 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <Sonner />
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Sets />} />
-        <Route path="/set/:id" element={<SetView />} />
-        <Route path="/create" element={<CreateSet />} />
-        <Route path="/edit/:id" element={<EditSet />} />
-        <Route path="/quiz/:id" element={<Quiz />} />
-        <Route path="/scroll" element={<InfiniteScroll />} />
-        <Route path="/saved" element={<SavedCards />} />
-        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Sets />} />
+          <Route path="/set/:id" element={<SetView />} />
+          <Route path="/create" element={<CreateSet />} />
+          <Route path="/edit/:id" element={<EditSet />} />
+          <Route path="/quiz/:id" element={<Quiz />} />
+          <Route path="/scroll" element={<InfiniteScroll />} />
+          <Route path="/saved" element={<SavedCards />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
