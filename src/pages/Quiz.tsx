@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getSet } from "@/lib/storage";
+import { getSet, getSets, getSavedCards } from "@/lib/storage";
 import { Flashcard } from "@/types/flashcard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +26,24 @@ const Quiz = () => {
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
 
   useEffect(() => {
-    if (id) {
+    if (id === "saved") {
+      // Load saved cards
+      const sets = getSets();
+      const savedRefs = getSavedCards();
+      const savedCards: Flashcard[] = [];
+
+      savedRefs.forEach(({ setId, cardId }) => {
+        const set = sets.find((s) => s.id === setId);
+        const card = set?.cards.find((c) => c.id === cardId);
+        if (card) {
+          savedCards.push(card);
+        }
+      });
+
+      setSetTitle("Saved Cards");
+      const shuffled = [...savedCards].sort(() => Math.random() - 0.5);
+      setCards(shuffled);
+    } else if (id) {
       const set = getSet(id);
       if (set) {
         setSetTitle(set.title);
@@ -123,7 +140,7 @@ const Quiz = () => {
           <div className="max-w-4xl mx-auto">
             <Button
               variant="ghost"
-              onClick={() => navigate(`/set/${id}`)}
+              onClick={() => navigate(id === "saved" ? "/saved" : `/set/${id}`)}
               className="mb-4 text-primary-foreground hover:bg-primary-foreground/10"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -175,7 +192,7 @@ const Quiz = () => {
           <div className="max-w-4xl mx-auto">
             <Button
               variant="ghost"
-              onClick={() => navigate(`/set/${id}`)}
+              onClick={() => navigate(id === "saved" ? "/saved" : `/set/${id}`)}
               className="mb-4 text-primary-foreground hover:bg-primary-foreground/10"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -206,7 +223,7 @@ const Quiz = () => {
               <Button onClick={handleRestart} className="bg-primary">
                 Try Again
               </Button>
-              <Button variant="outline" onClick={() => navigate(`/set/${id}`)}>
+              <Button variant="outline" onClick={() => navigate(id === "saved" ? "/saved" : `/set/${id}`)}>
                 Review Cards
               </Button>
             </div>
@@ -222,14 +239,14 @@ const Quiz = () => {
     <div className="min-h-screen bg-background pb-12">
       <div className="bg-gradient-brand text-primary-foreground p-6">
         <div className="max-w-4xl mx-auto">
-          <Button
-            variant="ghost"
-            onClick={() => navigate(`/set/${id}`)}
-            className="mb-4 text-primary-foreground hover:bg-primary-foreground/10"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
+            <Button
+              variant="ghost"
+              onClick={() => navigate(id === "saved" ? "/saved" : `/set/${id}`)}
+              className="mb-4 text-primary-foreground hover:bg-primary-foreground/10"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
           <div className="flex justify-between items-center">
             <h1 className="text-3xl font-bold">Quiz: {setTitle}</h1>
             <div className="text-xl">

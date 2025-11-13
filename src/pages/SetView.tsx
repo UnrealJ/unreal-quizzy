@@ -69,7 +69,7 @@ const SetView = () => {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 mt-12">
-        <FlashcardViewer cards={set.cards} />
+        <FlashcardViewer cards={set.cards} setId={set.id} />
       </div>
     </div>
   );

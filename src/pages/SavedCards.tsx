@@ -4,7 +4,7 @@ import { getSets, getSavedCards } from "@/lib/storage";
 import { Flashcard } from "@/types/flashcard";
 import { FlashcardViewer } from "@/components/FlashcardViewer";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Play } from "lucide-react";
 
 interface CardWithSet extends Flashcard {
   setId: string;
@@ -47,10 +47,23 @@ const SavedCards = () => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
-          <h1 className="text-3xl font-bold mb-2">Saved Cards</h1>
-          <p className="text-primary-foreground/80">
-            {cards.length} cards saved for review
-          </p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">Saved Cards</h1>
+              <p className="text-primary-foreground/80">
+                {cards.length} cards saved for review
+              </p>
+            </div>
+            {cards.length > 0 && (
+              <Button
+                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                onClick={() => navigate("/quiz/saved")}
+              >
+                <Play className="h-4 w-4 mr-2" />
+                Quiz Mode
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 

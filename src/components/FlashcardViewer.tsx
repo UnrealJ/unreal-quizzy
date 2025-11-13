@@ -1,16 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Flashcard } from "@/types/flashcard";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Bookmark, BookmarkCheck } from "lucide-react";
+import { saveCardForLater, unsaveCard, isCardSaved } from "@/lib/storage";
+import { toast } from "sonner";
 
 interface FlashcardViewerProps {
   cards: Flashcard[];
+  setId?: string;
 }
 
-export const FlashcardViewer = ({ cards }: FlashcardViewerProps) => {
+export const FlashcardViewer = ({ cards, setId }: FlashcardViewerProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (setId && cards[currentIndex]) {
+      setSaved(isCardSaved(setId, cards[currentIndex].id));
+    }
+  }, [currentIndex, setId, cards]);
 
   const handleNext = () => {
     if (currentIndex < cards.length - 1) {
@@ -28,6 +38,21 @@ export const FlashcardViewer = ({ cards }: FlashcardViewerProps) => {
 
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
+  };
+
+  const handleToggleSave = () => {
+    if (!setId) return;
+    
+    const currentCard = cards[currentIndex];
+    if (saved) {
+      unsaveCard(setId, currentCard.id);
+      toast.success("Card removed from saved");
+      setSaved(false);
+    } else {
+      saveCardForLater(setId, currentCard.id);
+      toast.success("Card saved for later");
+      setSaved(true);
+    }
   };
 
   if (cards.length === 0) {
@@ -67,7 +92,7 @@ export const FlashcardViewer = ({ cards }: FlashcardViewerProps) => {
         </div>
       </Card>
 
-      <div className="flex gap-4">
+      <div className="flex gap-4 items-center">
         <Button
           variant="outline"
           size="icon"
@@ -76,6 +101,20 @@ export const FlashcardViewer = ({ cards }: FlashcardViewerProps) => {
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
+        {setId && (
+          <Button
+            variant={saved ? "default" : "outline"}
+            size="icon"
+            onClick={handleToggleSave}
+            title={saved ? "Remove from saved" : "Save for later"}
+          >
+            {saved ? (
+              <BookmarkCheck className="h-4 w-4" />
+            ) : (
+              <Bookmark className="h-4 w-4" />
+            )}
+          </Button>
+        )}
         <Button
           variant="outline"
           size="icon"
