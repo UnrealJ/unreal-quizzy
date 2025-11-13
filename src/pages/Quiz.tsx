@@ -320,8 +320,8 @@ const Quiz = () => {
                   (quizMode === "type-in" 
                     ? userAnswer.toLowerCase().trim() === currentCard.term.toLowerCase().trim()
                     : selectedChoice?.toLowerCase().trim() === currentCard.term.toLowerCase().trim())
-                    ? "bg-green-50 border border-green-200 dark:bg-green-950 dark:border-green-800 text-green-900 dark:text-green-100"
-                    : "bg-red-50 border border-red-200 dark:bg-red-950 dark:border-red-800 text-red-900 dark:text-red-100"
+                    ? "bg-green-50 border border-green-200 dark:bg-green-950 dark:border-green-800"
+                    : "bg-red-50 border border-red-200 dark:bg-red-950 dark:border-red-800"
                 }`}
               >
                 <div className="flex items-center gap-2 mb-2">
