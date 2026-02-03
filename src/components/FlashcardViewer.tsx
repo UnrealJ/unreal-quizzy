@@ -16,9 +16,16 @@ export const FlashcardViewer = ({ cards, setId }: FlashcardViewerProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  // Get the effective setId - either from the card itself or from props
+  const getCardSetId = (card: Flashcard & { setId?: string }) => {
+    return (card as { setId?: string }).setId || setId;
+  };
+
   useEffect(() => {
-    if (setId && cards[currentIndex]) {
-      setSaved(isCardSaved(setId, cards[currentIndex].id));
+    const currentCard = cards[currentIndex];
+    const cardSetId = getCardSetId(currentCard);
+    if (cardSetId && currentCard) {
+      setSaved(isCardSaved(cardSetId, currentCard.id));
     }
   }, [currentIndex, setId, cards]);
 
@@ -41,15 +48,16 @@ export const FlashcardViewer = ({ cards, setId }: FlashcardViewerProps) => {
   };
 
   const handleToggleSave = () => {
-    if (!setId) return;
-    
     const currentCard = cards[currentIndex];
+    const cardSetId = getCardSetId(currentCard);
+    if (!cardSetId) return;
+    
     if (saved) {
-      unsaveCard(setId, currentCard.id);
+      unsaveCard(cardSetId, currentCard.id);
       toast.success("Card removed from saved");
       setSaved(false);
     } else {
-      saveCardForLater(setId, currentCard.id);
+      saveCardForLater(cardSetId, currentCard.id);
       toast.success("Card saved for later");
       setSaved(true);
     }
@@ -101,7 +109,7 @@ export const FlashcardViewer = ({ cards, setId }: FlashcardViewerProps) => {
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        {setId && (
+        {getCardSetId(currentCard) && (
           <Button
             variant={saved ? "default" : "outline"}
             size="icon"
