@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LoadingScreen } from "@/components/LoadingScreen";
-import { Plus, Search, Infinity, Bookmark } from "lucide-react";
+import { Plus, Search, Infinity, Bookmark, Settings } from "lucide-react";
 
 const Sets = () => {
   const [sets, setSets] = useState<FlashcardSet[]>([]);
@@ -53,6 +53,13 @@ const Sets = () => {
             >
               <Bookmark className="h-4 w-4 mr-2" />
               Saved Cards
+            </Button>
+            <Button
+              onClick={() => navigate("/settings")}
+              variant="secondary"
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Settings
             </Button>
           </div>
         </div>

@@ -8,8 +8,9 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import SpeedMultipleChoice from "@/components/SpeedMultipleChoice";
 
-type QuizMode = "type-in" | "multiple-choice";
+type QuizMode = "type-in" | "multiple-choice" | "speed";
 
 const Quiz = () => {
   const { id } = useParams();
@@ -132,6 +133,8 @@ const Quiz = () => {
     );
   }
 
+  const backPath = id === "saved" ? "/saved" : `/set/${id}`;
+
   // Mode selection screen
   if (!quizMode) {
     return (
@@ -140,7 +143,7 @@ const Quiz = () => {
           <div className="max-w-4xl mx-auto">
             <Button
               variant="ghost"
-              onClick={() => navigate(id === "saved" ? "/saved" : `/set/${id}`)}
+              onClick={() => navigate(backPath)}
               className="mb-4 text-primary-foreground hover:bg-primary-foreground/10"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -154,7 +157,7 @@ const Quiz = () => {
         <div className="max-w-4xl mx-auto px-4 mt-12">
           <Card className="p-8">
             <h2 className="text-2xl font-bold mb-6 text-center">Choose Quiz Mode</h2>
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-3 gap-4">
               <Button
                 variant="outline"
                 className="h-auto py-8 flex flex-col gap-3 hover:border-primary hover:bg-primary/5"
@@ -177,10 +180,32 @@ const Quiz = () => {
                   Choose from 4 options
                 </p>
               </Button>
+              <Button
+                variant="outline"
+                className="h-auto py-8 flex flex-col gap-3 hover:border-primary hover:bg-primary/5"
+                onClick={() => handleModeSelect("speed")}
+              >
+                <div className="text-4xl">⚡</div>
+                <div className="text-xl font-semibold">Speed Mode</div>
+                <p className="text-sm text-muted-foreground">
+                  Timed, instant answers
+                </p>
+              </Button>
             </div>
           </Card>
         </div>
       </div>
+    );
+  }
+
+  // Speed mode renders its own component
+  if (quizMode === "speed") {
+    return (
+      <SpeedMultipleChoice
+        cards={cards}
+        setTitle={setTitle}
+        backPath={backPath}
+      />
     );
   }
 
