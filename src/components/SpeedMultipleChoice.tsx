@@ -150,9 +150,9 @@ const SpeedMultipleChoice: React.FC<SpeedQuizProps> = ({ cards, setTitle, backPa
   const elapsed = Date.now() - startTime;
 
   return (
-    <div className="min-h-screen bg-background pb-12">
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
       <div className="bg-gradient-brand text-primary-foreground p-4">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <Zap className="h-5 w-5" />
@@ -174,18 +174,20 @@ const SpeedMultipleChoice: React.FC<SpeedQuizProps> = ({ cards, setTitle, backPa
         />
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 mt-8">
-        <Card className="p-8 mb-6">
-          <h2 className="text-3xl font-bold text-center mb-2">{currentCard.definition}</h2>
-          <p className="text-muted-foreground text-center text-sm">What is the term?</p>
+      <div className="flex-1 flex flex-col max-w-6xl w-full mx-auto px-6 py-6">
+        <Card className="flex-1 flex items-center justify-center p-8 mb-4">
+          <div className="text-center">
+            <h2 className="text-4xl font-bold mb-3">{currentCard.definition}</h2>
+            <p className="text-muted-foreground">What is the term?</p>
+          </div>
         </Card>
 
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-4 gap-4 min-h-[140px]">
           {choices.map((choice, index) => (
             <Button
               key={index}
               variant="outline"
-              className="h-auto py-10 flex flex-col gap-2 whitespace-normal hover:border-primary hover:bg-primary/5 text-base"
+              className="h-full py-8 flex flex-col gap-2 whitespace-normal hover:border-primary hover:bg-primary/5 text-lg font-medium"
               onClick={() => handleAnswer(choice)}
             >
               <span className="text-xs text-muted-foreground font-mono">{index + 1}</span>
@@ -194,7 +196,7 @@ const SpeedMultipleChoice: React.FC<SpeedQuizProps> = ({ cards, setTitle, backPa
           ))}
         </div>
 
-        <p className="text-center text-xs text-muted-foreground mt-4">
+        <p className="text-center text-xs text-muted-foreground mt-3">
           Press <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono">1</kbd>
           <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono ml-1">2</kbd>
           <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono ml-1">3</kbd>
