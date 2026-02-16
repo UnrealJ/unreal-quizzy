@@ -18,7 +18,7 @@ const SpeedMultipleChoice: React.FC<SpeedQuizProps> = ({ cards, setTitle, backPa
   const [score, setScore] = useState(0);
   const [choices, setChoices] = useState<string[]>([]);
   const [quizComplete, setQuizComplete] = useState(false);
-  const [startTime] = useState(Date.now());
+  const [startTime, setStartTime] = useState(Date.now());
   const [totalTime, setTotalTime] = useState(0);
   const [results, setResults] = useState<Array<{ card: Flashcard; correct: boolean; userAnswer: string }>>([]);
 
@@ -41,9 +41,9 @@ const SpeedMultipleChoice: React.FC<SpeedQuizProps> = ({ cards, setTitle, backPa
 
     if (correct) {
       setScore((s) => s + 1);
-      toast.success("Correct! ✓");
+      toast.success("Correct! ✓", { style: { background: '#16a34a', color: '#fff', border: 'none' } });
     } else {
-      toast.error(`Wrong — ${currentCard.term}`);
+      toast.error(`Wrong — ${currentCard.term}`, { style: { background: '#dc2626', color: '#fff', border: 'none' } });
     }
 
     setResults((r) => [...r, { card: currentCard, correct, userAnswer: choice }]);
@@ -132,6 +132,7 @@ const SpeedMultipleChoice: React.FC<SpeedQuizProps> = ({ cards, setTitle, backPa
                 setScore(0);
                 setQuizComplete(false);
                 setResults([]);
+                setStartTime(Date.now());
               }} className="bg-primary">
                 Try Again
               </Button>
@@ -184,11 +185,11 @@ const SpeedMultipleChoice: React.FC<SpeedQuizProps> = ({ cards, setTitle, backPa
             <Button
               key={index}
               variant="outline"
-              className="h-auto py-6 flex flex-col gap-1 whitespace-normal hover:border-primary hover:bg-primary/5"
+              className="h-auto py-10 flex flex-col gap-2 whitespace-normal hover:border-primary hover:bg-primary/5 text-base"
               onClick={() => handleAnswer(choice)}
             >
               <span className="text-xs text-muted-foreground font-mono">{index + 1}</span>
-              <span className="text-sm">{choice}</span>
+              <span>{choice}</span>
             </Button>
           ))}
         </div>
