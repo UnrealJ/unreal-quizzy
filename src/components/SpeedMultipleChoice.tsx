@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Flashcard } from "@/types/flashcard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { toast } from "sonner";
 import { ArrowLeft, CheckCircle2, XCircle, Zap } from "lucide-react";
 
 interface SpeedQuizProps {
@@ -19,7 +20,6 @@ const SpeedMultipleChoice: React.FC<SpeedQuizProps> = ({ cards, setTitle, backPa
   const [quizComplete, setQuizComplete] = useState(false);
   const [startTime] = useState(Date.now());
   const [totalTime, setTotalTime] = useState(0);
-  const [lastResult, setLastResult] = useState<{ correct: boolean; answer: string } | null>(null);
   const [results, setResults] = useState<Array<{ card: Flashcard; correct: boolean; userAnswer: string }>>([]);
 
   // Generate choices
@@ -32,35 +32,35 @@ const SpeedMultipleChoice: React.FC<SpeedQuizProps> = ({ cards, setTitle, backPa
         .sort(() => Math.random() - 0.5)
         .slice(0, 3);
       setChoices([currentCard.term, ...wrongChoices].sort(() => Math.random() - 0.5));
-      setLastResult(null);
     }
   }, [currentIndex, cards]);
 
   const handleAnswer = useCallback((choice: string) => {
-    if (lastResult) return; // prevent double-click
     const currentCard = cards[currentIndex];
     const correct = choice.toLowerCase().trim() === currentCard.term.toLowerCase().trim();
 
-    if (correct) setScore((s) => s + 1);
+    if (correct) {
+      setScore((s) => s + 1);
+      toast.success("Correct! ✓");
+    } else {
+      toast.error(`Wrong — ${currentCard.term}`);
+    }
 
     setResults((r) => [...r, { card: currentCard, correct, userAnswer: choice }]);
-    setLastResult({ correct, answer: choice });
 
-    // Brief flash then auto-advance
-    setTimeout(() => {
-      if (currentIndex < cards.length - 1) {
-        setCurrentIndex((i) => i + 1);
-      } else {
-        setTotalTime(Date.now() - startTime);
-        setQuizComplete(true);
-      }
-    }, 300);
-  }, [currentIndex, cards, lastResult, startTime]);
+    // Instantly advance
+    if (currentIndex < cards.length - 1) {
+      setCurrentIndex((i) => i + 1);
+    } else {
+      setTotalTime(Date.now() - startTime);
+      setQuizComplete(true);
+    }
+  }, [currentIndex, cards, startTime]);
 
   // Keyboard shortcuts: 1-4
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (quizComplete || lastResult) return;
+      if (quizComplete) return;
       const num = parseInt(e.key);
       if (num >= 1 && num <= 4 && num <= choices.length) {
         handleAnswer(choices[num - 1]);
@@ -68,7 +68,7 @@ const SpeedMultipleChoice: React.FC<SpeedQuizProps> = ({ cards, setTitle, backPa
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [choices, quizComplete, lastResult, handleAnswer]);
+  }, [choices, quizComplete, handleAnswer]);
 
   const formatTime = (ms: number) => {
     const seconds = Math.floor(ms / 1000);
@@ -132,7 +132,6 @@ const SpeedMultipleChoice: React.FC<SpeedQuizProps> = ({ cards, setTitle, backPa
                 setScore(0);
                 setQuizComplete(false);
                 setResults([]);
-                setLastResult(null);
               }} className="bg-primary">
                 Try Again
               </Button>
@@ -180,38 +179,18 @@ const SpeedMultipleChoice: React.FC<SpeedQuizProps> = ({ cards, setTitle, backPa
           <p className="text-muted-foreground text-center text-sm">What is the term?</p>
         </Card>
 
-        <div className="grid grid-cols-2 gap-3">
-          {choices.map((choice, index) => {
-            const isSelected = lastResult?.answer === choice;
-            const isCorrect = choice.toLowerCase().trim() === currentCard.term.toLowerCase().trim();
-            let variant: "outline" | "default" | "destructive" = "outline";
-            let extraClass = "h-auto py-6 text-left justify-start whitespace-normal relative";
-
-            if (lastResult) {
-              if (isCorrect) {
-                extraClass += " border-green-500 bg-green-50 dark:bg-green-950";
-              } else if (isSelected && !lastResult.correct) {
-                extraClass += " border-red-500 bg-red-50 dark:bg-red-950";
-              }
-            } else {
-              extraClass += " hover:border-primary hover:bg-primary/5";
-            }
-
-            return (
-              <Button
-                key={index}
-                variant={variant}
-                className={extraClass}
-                onClick={() => handleAnswer(choice)}
-                disabled={!!lastResult}
-              >
-                <span className="absolute top-2 left-3 text-xs text-muted-foreground font-mono">
-                  {index + 1}
-                </span>
-                <span className="mt-2">{choice}</span>
-              </Button>
-            );
-          })}
+        <div className="grid grid-cols-4 gap-3">
+          {choices.map((choice, index) => (
+            <Button
+              key={index}
+              variant="outline"
+              className="h-auto py-6 flex flex-col gap-1 whitespace-normal hover:border-primary hover:bg-primary/5"
+              onClick={() => handleAnswer(choice)}
+            >
+              <span className="text-xs text-muted-foreground font-mono">{index + 1}</span>
+              <span className="text-sm">{choice}</span>
+            </Button>
+          ))}
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-4">
