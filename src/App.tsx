@@ -7,6 +7,7 @@ import SetView from "./pages/SetView";
 import CreateSet from "./pages/CreateSet";
 import EditSet from "./pages/EditSet";
 import Quiz from "./pages/Quiz";
+import Settings from "./pages/Settings";
 import InfiniteScroll from "./pages/InfiniteScroll";
 import SavedCards from "./pages/SavedCards";
 import NotFound from "./pages/NotFound";
@@ -23,6 +24,7 @@ const App = () => (
         <Route path="/create" element={<CreateSet />} />
         <Route path="/edit/:id" element={<EditSet />} />
         <Route path="/quiz/:id" element={<Quiz />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/scroll" element={<InfiniteScroll />} />
         <Route path="/saved" element={<SavedCards />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
