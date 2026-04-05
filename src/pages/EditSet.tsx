@@ -1,22 +1,35 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { saveSet, getSet, deleteSet } from "@/lib/storage";
-import { Flashcard, FlashcardSet } from "@/types/flashcard";
+import { Flashcard, FlashcardSet, MCQCard, MCQOption } from "@/types/flashcard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Plus, Trash2, FileText } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, FileText, ListChecks, CheckCircle2, Circle } from "lucide-react";
 import { toast } from "sonner";
+
+const createEmptyMCQ = (): MCQCard => ({
+  id: crypto.randomUUID(),
+  question: "",
+  options: [
+    { id: crypto.randomUUID(), text: "", isCorrect: true },
+    { id: crypto.randomUUID(), text: "", isCorrect: false },
+    { id: crypto.randomUUID(), text: "", isCorrect: false },
+    { id: crypto.randomUUID(), text: "", isCorrect: false },
+  ],
+});
 
 const EditSet = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [cards, setCards] = useState<Flashcard[]>([]);
+  const [mcqCards, setMcqCards] = useState<MCQCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [importText, setImportText] = useState("");
+  const [mcqImportText, setMcqImportText] = useState("");
 
   useEffect(() => {
     if (id) {
@@ -24,34 +37,25 @@ const EditSet = () => {
       if (set) {
         setTitle(set.title);
         setCards(set.cards);
+        setMcqCards(set.mcqCards ?? []);
       }
       setLoading(false);
     }
   }, [id]);
 
-  const addCard = () => {
-    setCards([...cards, { id: crypto.randomUUID(), term: "", definition: "" }]);
-  };
+  // --- Flashcard handlers ---
+  const addCard = () => setCards([...cards, { id: crypto.randomUUID(), term: "", definition: "" }]);
 
   const removeCard = (cardId: string) => {
-    if (cards.length > 1) {
-      setCards(cards.filter((card) => card.id !== cardId));
-    }
+    if (cards.length > 1) setCards(cards.filter((c) => c.id !== cardId));
   };
 
   const updateCard = (cardId: string, field: "term" | "definition", value: string) => {
-    setCards(
-      cards.map((card) =>
-        card.id === cardId ? { ...card, [field]: value } : card
-      )
-    );
+    setCards(cards.map((c) => (c.id === cardId ? { ...c, [field]: value } : c)));
   };
 
   const handleImport = () => {
-    if (!importText.trim()) {
-      toast.error("Please paste some text to import");
-      return;
-    }
+    if (!importText.trim()) { toast.error("Please paste some text to import"); return; }
 
     const lines = importText.trim().split("\n");
     const importedCards: Flashcard[] = [];
@@ -60,55 +64,127 @@ const EditSet = () => {
     lines.forEach((line, index) => {
       const trimmedLine = line.trim();
       if (!trimmedLine) return;
-
-      const commaIndex = trimmedLine.indexOf(",");
-      if (commaIndex === -1) {
-        errors.push(`Line ${index + 1}: Missing comma separator`);
-        return;
-      }
-
-      const term = trimmedLine.substring(0, commaIndex).trim();
-      const definition = trimmedLine.substring(commaIndex + 1).trim();
-
-      if (!term || !definition) {
-        errors.push(`Line ${index + 1}: Term or definition is empty`);
-        return;
-      }
-
-      importedCards.push({
-        id: crypto.randomUUID(),
-        term,
-        definition,
-      });
+      const pipeIndex = trimmedLine.indexOf("|");
+      if (pipeIndex === -1) { errors.push(`Line ${index + 1}: Missing | separator`); return; }
+      const term = trimmedLine.substring(0, pipeIndex).trim();
+      const definition = trimmedLine.substring(pipeIndex + 1).trim();
+      if (!term || !definition) { errors.push(`Line ${index + 1}: Term or definition is empty`); return; }
+      importedCards.push({ id: crypto.randomUUID(), term, definition });
     });
 
-    if (errors.length > 0) {
-      toast.error(`Import errors: ${errors.join("; ")}`);
-      return;
-    }
-
-    if (importedCards.length === 0) {
-      toast.error("No valid cards found to import");
-      return;
-    }
+    if (errors.length > 0) { toast.error(`Import errors: ${errors.join("; ")}`); return; }
+    if (importedCards.length === 0) { toast.error("No valid cards found to import"); return; }
 
     setCards([...cards, ...importedCards]);
     toast.success(`Imported ${importedCards.length} cards successfully!`);
     setImportText("");
   };
 
-  const handleSave = () => {
-    if (!title.trim()) {
-      toast.error("Please enter a title for your set");
-      return;
-    }
+  // --- MCQ handlers ---
+  const addMCQ = () => setMcqCards([...mcqCards, createEmptyMCQ()]);
 
-    const validCards = cards.filter(
-      (card) => card.term.trim() && card.definition.trim()
+  const removeMCQ = (mcqId: string) => {
+    if (mcqCards.length > 1) setMcqCards(mcqCards.filter((m) => m.id !== mcqId));
+  };
+
+  const updateMCQQuestion = (mcqId: string, question: string) => {
+    setMcqCards(mcqCards.map((m) => (m.id === mcqId ? { ...m, question } : m)));
+  };
+
+  const updateMCQOption = (mcqId: string, optId: string, text: string) => {
+    setMcqCards(
+      mcqCards.map((m) =>
+        m.id === mcqId
+          ? { ...m, options: m.options.map((o) => (o.id === optId ? { ...o, text } : o)) }
+          : m
+      )
+    );
+  };
+
+  const setCorrectOption = (mcqId: string, optId: string) => {
+    setMcqCards(
+      mcqCards.map((m) =>
+        m.id === mcqId
+          ? { ...m, options: m.options.map((o) => ({ ...o, isCorrect: o.id === optId })) }
+          : m
+      )
+    );
+  };
+
+  const addMCQOption = (mcqId: string) => {
+    setMcqCards(
+      mcqCards.map((m) =>
+        m.id === mcqId
+          ? { ...m, options: [...m.options, { id: crypto.randomUUID(), text: "", isCorrect: false }] }
+          : m
+      )
+    );
+  };
+
+  const removeMCQOption = (mcqId: string, optId: string) => {
+    setMcqCards(
+      mcqCards.map((m) => {
+        if (m.id !== mcqId) return m;
+        if (m.options.length <= 2) return m;
+        const newOpts = m.options.filter((o) => o.id !== optId);
+        const hasCorrect = newOpts.some((o) => o.isCorrect);
+        if (!hasCorrect && newOpts.length > 0) newOpts[0] = { ...newOpts[0], isCorrect: true };
+        return { ...m, options: newOpts };
+      })
+    );
+  };
+
+  const handleMCQImport = () => {
+    if (!mcqImportText.trim()) { toast.error("Please paste some text to import"); return; }
+
+    const blocks = mcqImportText.trim().split(/\n\s*\n/);
+    const imported: MCQCard[] = [];
+    const errors: string[] = [];
+
+    blocks.forEach((block, bi) => {
+      const lines = block.trim().split("\n").filter((l) => l.trim());
+      if (lines.length < 3) { errors.push(`Block ${bi + 1}: Need a question and at least 2 options`); return; }
+      const question = lines[0].trim();
+      const options: MCQOption[] = [];
+      let hasCorrect = false;
+
+      lines.slice(1).forEach((line) => {
+        const trimmed = line.trim();
+        if (trimmed.startsWith("*")) {
+          const text = trimmed.substring(1).trim();
+          if (text) { options.push({ id: crypto.randomUUID(), text, isCorrect: true }); hasCorrect = true; }
+        } else if (trimmed.startsWith("-")) {
+          const text = trimmed.substring(1).trim();
+          if (text) options.push({ id: crypto.randomUUID(), text, isCorrect: false });
+        }
+      });
+
+      if (!hasCorrect) { errors.push(`Block ${bi + 1}: No correct answer marked with *`); return; }
+      if (options.length < 2) { errors.push(`Block ${bi + 1}: Need at least 2 options`); return; }
+      imported.push({ id: crypto.randomUUID(), question, options });
+    });
+
+    if (errors.length > 0) { toast.error(`Import errors: ${errors.join("; ")}`); return; }
+    if (imported.length === 0) { toast.error("No valid MCQ cards found"); return; }
+
+    setMcqCards([...mcqCards, ...imported]);
+    toast.success(`Imported ${imported.length} MCQ questions!`);
+    setMcqImportText("");
+  };
+
+  const handleSave = () => {
+    if (!title.trim()) { toast.error("Please enter a title for your set"); return; }
+
+    const validCards = cards.filter((c) => c.term.trim() && c.definition.trim());
+    const validMCQ = mcqCards.filter(
+      (m) =>
+        m.question.trim() &&
+        m.options.filter((o) => o.text.trim()).length >= 2 &&
+        m.options.some((o) => o.isCorrect && o.text.trim())
     );
 
-    if (validCards.length === 0) {
-      toast.error("Please add at least one complete card");
+    if (validCards.length === 0 && validMCQ.length === 0) {
+      toast.error("Please add at least one complete card or MCQ question");
       return;
     }
 
@@ -118,10 +194,10 @@ const EditSet = () => {
         id,
         title: title.trim(),
         cards: validCards,
+        mcqCards: validMCQ,
         createdAt: existingSet?.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-
       saveSet(updatedSet);
       toast.success("Set updated successfully!");
       navigate(`/set/${id}`);
@@ -168,28 +244,29 @@ const EditSet = () => {
         </div>
 
         <Tabs defaultValue="manual" className="mb-8">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="manual">
               <Plus className="h-4 w-4 mr-2" />
-              Manual Entry
+              Flashcards
             </TabsTrigger>
             <TabsTrigger value="import">
               <FileText className="h-4 w-4 mr-2" />
-              Import Mode
+              Import Cards
+            </TabsTrigger>
+            <TabsTrigger value="mcq">
+              <ListChecks className="h-4 w-4 mr-2" />
+              Custom MCQ
             </TabsTrigger>
           </TabsList>
 
+          {/* Manual flashcard entry */}
           <TabsContent value="manual" className="space-y-4">
             {cards.map((card, index) => (
               <Card key={card.id} className="p-6">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="font-semibold">Card {index + 1}</h3>
                   {cards.length > 1 && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeCard(card.id)}
-                    >
+                    <Button variant="ghost" size="icon" onClick={() => removeCard(card.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   )}
@@ -200,47 +277,39 @@ const EditSet = () => {
                     <Input
                       placeholder="Enter term..."
                       value={card.term}
-                      onChange={(e) =>
-                        updateCard(card.id, "term", e.target.value)
-                      }
+                      onChange={(e) => updateCard(card.id, "term", e.target.value)}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Definition
-                    </label>
+                    <label className="block text-sm font-medium mb-2">Definition</label>
                     <Textarea
                       placeholder="Enter definition..."
                       value={card.definition}
-                      onChange={(e) =>
-                        updateCard(card.id, "definition", e.target.value)
-                      }
+                      onChange={(e) => updateCard(card.id, "definition", e.target.value)}
                       rows={3}
                     />
                   </div>
                 </div>
               </Card>
             ))}
-
             <Button variant="outline" onClick={addCard} className="w-full">
               <Plus className="h-4 w-4 mr-2" />
               Add Card
             </Button>
           </TabsContent>
 
+          {/* Import flashcards */}
           <TabsContent value="import" className="space-y-4">
             <Card className="p-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Import Cards
-                  </label>
+                  <label className="block text-sm font-medium mb-2">Import Flashcards</label>
                   <p className="text-sm text-muted-foreground mb-4">
                     Paste your flashcards in this format (one per line):
                     <br />
                     <code className="text-xs bg-muted px-2 py-1 rounded mt-2 inline-block">
-                      term1, definition1<br />
-                      term2, definition2
+                      term1 | definition1<br />
+                      term2 | definition2
                     </code>
                   </p>
                   <Textarea
@@ -258,6 +327,120 @@ const EditSet = () => {
               </div>
             </Card>
           </TabsContent>
+
+          {/* Custom MCQ tab */}
+          <TabsContent value="mcq" className="space-y-6">
+            <Tabs defaultValue="mcq-manual">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="mcq-manual">Manual Entry</TabsTrigger>
+                <TabsTrigger value="mcq-import">Import MCQ</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="mcq-manual" className="space-y-4 mt-4">
+                {mcqCards.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    No MCQ questions yet. Add one below.
+                  </p>
+                )}
+                {mcqCards.map((mcq, qi) => (
+                  <Card key={mcq.id} className="p-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="font-semibold">Question {qi + 1}</h3>
+                      {mcqCards.length > 1 && (
+                        <Button variant="ghost" size="icon" onClick={() => removeMCQ(mcq.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      )}
+                    </div>
+
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium mb-2">Question</label>
+                      <Textarea
+                        placeholder="Enter question..."
+                        value={mcq.question}
+                        onChange={(e) => updateMCQQuestion(mcq.id, e.target.value)}
+                        rows={2}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium mb-1">
+                        Options{" "}
+                        <span className="text-muted-foreground font-normal text-xs">
+                          — click the circle to mark correct answer
+                        </span>
+                      </label>
+                      {mcq.options.map((opt, oi) => (
+                        <div key={opt.id} className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setCorrectOption(mcq.id, opt.id)}
+                            className="flex-shrink-0"
+                            title="Mark as correct answer"
+                          >
+                            {opt.isCorrect ? (
+                              <CheckCircle2 className="h-5 w-5 text-green-600" />
+                            ) : (
+                              <Circle className="h-5 w-5 text-muted-foreground" />
+                            )}
+                          </button>
+                          <Input
+                            placeholder={`Option ${oi + 1}...`}
+                            value={opt.text}
+                            onChange={(e) => updateMCQOption(mcq.id, opt.id, e.target.value)}
+                            className={opt.isCorrect ? "border-green-400 bg-green-50 dark:bg-green-950/30" : ""}
+                          />
+                          {mcq.options.length > 2 && (
+                            <Button variant="ghost" size="icon" onClick={() => removeMCQOption(mcq.id, opt.id)}>
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+                      <Button variant="outline" size="sm" onClick={() => addMCQOption(mcq.id)} className="mt-1">
+                        <Plus className="h-3 w-3 mr-1" /> Add Option
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+
+                <Button variant="outline" onClick={addMCQ} className="w-full">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add MCQ Question
+                </Button>
+              </TabsContent>
+
+              <TabsContent value="mcq-import" className="mt-4">
+                <Card className="p-6">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Import MCQ Questions</label>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Paste questions in this format, separated by blank lines:
+                        <br />
+                        <code className="text-xs bg-muted px-2 py-1 rounded mt-2 inline-block whitespace-pre">{`What is the capital of France?\n* Paris\n- London\n- Berlin\n- Madrid\n\nWhat color is the sky?\n- Red\n* Blue\n- Green`}</code>
+                        <br />
+                        <span className="text-xs mt-1 inline-block">
+                          Use <strong>*</strong> for correct, <strong>-</strong> for wrong options.
+                        </span>
+                      </p>
+                      <Textarea
+                        placeholder="Paste MCQ questions here..."
+                        value={mcqImportText}
+                        onChange={(e) => setMcqImportText(e.target.value)}
+                        rows={14}
+                        className="font-mono text-sm"
+                      />
+                    </div>
+                    <Button onClick={handleMCQImport} className="w-full">
+                      <ListChecks className="h-4 w-4 mr-2" />
+                      Import MCQ Questions (will add to existing)
+                    </Button>
+                  </div>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </TabsContent>
         </Tabs>
 
         <div className="flex gap-4 mb-4">
@@ -266,11 +449,7 @@ const EditSet = () => {
           </Button>
         </div>
 
-        <Button
-          variant="destructive"
-          onClick={handleDelete}
-          className="w-full"
-        >
+        <Button variant="destructive" onClick={handleDelete} className="w-full">
           <Trash2 className="h-4 w-4 mr-2" />
           Delete Set
         </Button>

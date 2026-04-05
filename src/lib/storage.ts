@@ -26,7 +26,9 @@ export const deleteSet = (id: string): void => {
 };
 
 export const getSet = (id: string): FlashcardSet | undefined => {
-  return getSets().find((s) => s.id === id);
+  const set = getSets().find((s) => s.id === id);
+  if (set && !set.mcqCards) return { ...set, mcqCards: [] };
+  return set;
 };
 
 const SAVED_CARDS_KEY = "quizzy_saved_cards";
