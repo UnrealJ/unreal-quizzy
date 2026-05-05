@@ -125,6 +125,7 @@ export const CardGrid = ({ cards, setId }: CardGridProps) => {
         {cards.map((card) => (
           <FlipCard key={card.id} card={card} setId={setId} />
         ))}
+        </div>
       </div>
     </div>
   );
