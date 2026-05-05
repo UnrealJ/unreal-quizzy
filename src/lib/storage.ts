@@ -56,3 +56,29 @@ export const unsaveCard = (setId: string, cardId: string): void => {
 export const isCardSaved = (setId: string, cardId: string): boolean => {
   return getSavedCards().some((s) => s.setId === setId && s.cardId === cardId);
 };
+
+const KNOWN_CARDS_KEY = "quizzy_known_cards";
+
+export const getKnownCards = (): Array<{ setId: string; cardId: string }> => {
+  const stored = localStorage.getItem(KNOWN_CARDS_KEY);
+  return stored ? JSON.parse(stored) : [];
+};
+
+export const markCardKnown = (setId: string, cardId: string): void => {
+  const known = getKnownCards();
+  if (!known.find((s) => s.setId === setId && s.cardId === cardId)) {
+    known.push({ setId, cardId });
+    localStorage.setItem(KNOWN_CARDS_KEY, JSON.stringify(known));
+  }
+};
+
+export const unmarkCardKnown = (setId: string, cardId: string): void => {
+  const known = getKnownCards().filter(
+    (s) => !(s.setId === setId && s.cardId === cardId)
+  );
+  localStorage.setItem(KNOWN_CARDS_KEY, JSON.stringify(known));
+};
+
+export const isCardKnown = (setId: string, cardId: string): boolean => {
+  return getKnownCards().some((s) => s.setId === setId && s.cardId === cardId);
+};
