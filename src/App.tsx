@@ -10,6 +10,7 @@ import Quiz from "./pages/Quiz";
 import Settings from "./pages/Settings";
 import InfiniteScroll from "./pages/InfiniteScroll";
 import SavedCards from "./pages/SavedCards";
+import PublicSets from "./pages/PublicSets";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
         <Route path="/settings" element={<Settings />} />
         <Route path="/scroll" element={<InfiniteScroll />} />
         <Route path="/saved" element={<SavedCards />} />
+        <Route path="/public" element={<PublicSets />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
