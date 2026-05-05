@@ -32,7 +32,7 @@ const SetView = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-12">
+    <div className={`bg-background ${viewMode === "grid" ? "h-screen overflow-hidden" : "min-h-screen pb-12"}`}>
       <div className="bg-gradient-brand text-primary-foreground p-6">
         <div className="max-w-6xl mx-auto">
           <Button
