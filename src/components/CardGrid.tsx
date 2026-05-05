@@ -62,7 +62,7 @@ const FlipCard = ({ card, setId }: FlipCardProps) => {
   return (
     <Card
       onClick={() => setFlipped((f) => !f)}
-      className="relative cursor-pointer p-4 min-h-[160px] flex items-center justify-center text-center transition-all hover:shadow-lg hover:-translate-y-0.5"
+      className="relative cursor-pointer p-4 pt-12 min-h-[200px] flex items-center justify-center text-center transition-all hover:shadow-lg hover:-translate-y-0.5"
     >
       <div className="absolute top-2 right-2 flex gap-1">
         <Button
@@ -87,7 +87,7 @@ const FlipCard = ({ card, setId }: FlipCardProps) => {
           {saved ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
         </Button>
       </div>
-      <div className="px-2">
+      <div className="px-2 w-full">
         {!flipped ? (
           <p className="font-semibold text-lg break-words">{card.term}</p>
         ) : (
@@ -109,7 +109,7 @@ export const CardGrid = ({ cards, setId }: CardGridProps) => {
 
   return (
     <div className="max-h-[calc(100vh-220px)] overflow-y-auto pr-2">
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
         {cards.map((card) => (
           <FlipCard key={card.id} card={card} setId={setId} />
         ))}
