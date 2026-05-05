@@ -70,7 +70,7 @@ const SetView = () => {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 mt-8">
+      <div className={`${viewMode === "grid" ? "max-w-[1800px]" : "max-w-6xl"} mx-auto px-4 mt-8`}>
         <div className="flex justify-end mb-4 gap-2">
           <Button
             variant={viewMode === "single" ? "default" : "outline"}
