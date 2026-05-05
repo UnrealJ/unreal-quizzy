@@ -62,7 +62,9 @@ const FlipCard = ({ card, setId }: FlipCardProps) => {
   return (
     <Card
       onClick={() => setFlipped((f) => !f)}
-      className="relative cursor-pointer p-4 pt-12 min-h-[200px] flex items-center justify-center text-center transition-all hover:shadow-lg hover:-translate-y-0.5"
+      className={`relative cursor-pointer p-4 pt-12 min-h-[200px] flex items-center justify-center text-center transition-all hover:shadow-lg hover:-translate-y-0.5 ${
+        known ? "bg-green-500/10 border-green-500/50" : ""
+      }`}
     >
       <div className="absolute top-2 right-2 flex gap-1">
         <Button
