@@ -99,6 +99,12 @@ const FlipCard = ({ card, setId }: FlipCardProps) => {
 };
 
 export const CardGrid = ({ cards, setId }: CardGridProps) => {
+  const [savedCount, setSavedCount] = useState(0);
+
+  useEffect(() => {
+    setSavedCount(cards.filter((c) => isCardSaved(setId, c.id)).length);
+  }, [cards, setId]);
+
   if (cards.length === 0) {
     return (
       <div className="text-center text-muted-foreground mt-12">
@@ -108,7 +114,13 @@ export const CardGrid = ({ cards, setId }: CardGridProps) => {
   }
 
   return (
-    <div className="max-h-[calc(100vh-220px)] overflow-y-auto pr-2">
+    <div>
+      <div className="text-sm text-muted-foreground mb-3">
+        Saved {savedCount} / {cards.length}
+      </div>
+      <div className="max-h-[calc(100vh-240px)] overflow-y-auto scrollbar-minimal pr-2"
+        onMouseEnter={() => setSavedCount(cards.filter((c) => isCardSaved(setId, c.id)).length)}
+      >
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
         {cards.map((card) => (
           <FlipCard key={card.id} card={card} setId={setId} />
