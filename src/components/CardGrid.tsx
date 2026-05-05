@@ -76,7 +76,7 @@ export const CardGrid = ({ cards, setId }: CardGridProps) => {
 
   return (
     <div className="max-h-[calc(100vh-220px)] overflow-y-auto pr-2">
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12 gap-3">
         {cards.map((card) => (
           <FlipCard key={card.id} card={card} setId={setId} />
         ))}
