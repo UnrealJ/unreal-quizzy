@@ -3,13 +3,15 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getSet } from "@/lib/storage";
 import { FlashcardSet } from "@/types/flashcard";
 import { FlashcardViewer } from "@/components/FlashcardViewer";
+import { CardGrid } from "@/components/CardGrid";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Play, Edit } from "lucide-react";
+import { ArrowLeft, Play, Edit, LayoutGrid, BookOpen } from "lucide-react";
 
 const SetView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [set, setSet] = useState<FlashcardSet | null>(null);
+  const [viewMode, setViewMode] = useState<"single" | "grid">("single");
 
   useEffect(() => {
     if (id) {
@@ -68,8 +70,30 @@ const SetView = () => {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 mt-12">
-        <FlashcardViewer cards={set.cards} setId={set.id} />
+      <div className="max-w-6xl mx-auto px-4 mt-8">
+        <div className="flex justify-end mb-4 gap-2">
+          <Button
+            variant={viewMode === "single" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setViewMode("single")}
+          >
+            <BookOpen className="h-4 w-4 mr-2" />
+            Single
+          </Button>
+          <Button
+            variant={viewMode === "grid" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setViewMode("grid")}
+          >
+            <LayoutGrid className="h-4 w-4 mr-2" />
+            Reading Mode
+          </Button>
+        </div>
+        {viewMode === "single" ? (
+          <FlashcardViewer cards={set.cards} setId={set.id} />
+        ) : (
+          <CardGrid cards={set.cards} setId={set.id} />
+        )}
       </div>
     </div>
   );
